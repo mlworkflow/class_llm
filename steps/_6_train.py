@@ -5,10 +5,13 @@ from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 import torch
 import logging
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import accuracy_score
 from torch.utils.data import Dataset
 from zenml import ArtifactConfig, step
 from zenml.client import Client
 from steps._5_datasets import CustomDataset
+import mlflow
 
 # Get the active experiment tracker from ZenML
 experiment_tracker = Client().active_stack.experiment_tracker
@@ -26,6 +29,7 @@ tokenizer =  AutoTokenizer.from_pretrained('bert-base-uncased', max_length=1024)
 @step(enable_cache=False, experiment_tracker=experiment_tracker.name, model=model)
 def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: int, id2label: dict, label2id: dict) -> Tuple[CustomDataset, CustomDataset, CustomDataset]:
     """"""
+    mlflow.pytorch.autolog()
     model_bert = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=NUM_LABELS, id2label=id2label, label2id=label2id)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model_bert = model_bert.to(device)
