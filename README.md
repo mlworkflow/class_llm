@@ -1,23 +1,27 @@
 ## zenml
 
 1.
-zenml init
+`zenml init`
 
 2.
-zenml project register class_llm --set
+`zenml project register class_llm --set`
 
 3.
-zenml login --local --docker  
-or:  
-docker run -it -d -p 8080:8080 --name zenml zenmldocker/zenml-server  
+`zenml login --local --docker `  
+or:   
+`docker run -it -d -p 8080:8080 --name zenml zenmldocker/zenml-server `   
+`zenml login http://localhost:8080`
 
 ### mlflow integration
 
 1.
-zenml integration install mlflow -y
+`zenml integration install mlflow -y`
 
 2.
-zenml experiment-tracker register mlflow_experiment_tracker --flavor=mlflow
+`zenml experiment-tracker register mlflow_experiment_tracker --flavor=mlflow`
+
+3. dashboard öffnen
+`mlflow server`
 
 ### stack erstellen
 
@@ -35,7 +39,7 @@ To successfully register a stack in ZenML, you need to specify all required stac
 Here’s how you can register and set a stack with all essential components:
 
 ```bash
-zenml zenml stack register stack1 --orchestrator=default --artifact-store=default -e mlflow_experiment_tracker --set
+zenml stack register stack1 --orchestrator=default --artifact-store=default -e mlflow_experiment_tracker --set
 ```
 
 ---

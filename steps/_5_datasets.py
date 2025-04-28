@@ -6,12 +6,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from transformers import AutoTokenizer
 import torch
 from torch.utils.data import Dataset
-
+from sklearn.utils.class_weight import compute_class_weight
+import numpy as np
 
 tokenizer =  AutoTokenizer.from_pretrained('bert-base-uncased', max_length=1024)
 
 @step
-def datasets(X_train: pd.Series, X_val: pd.Series, X_test: pd.Series, y_train: pd.Series, y_val: pd.Series, y_test: pd.Series) -> Tuple[Dataset, Dataset, Dataset]:
+def datasets(X_train: pd.Series, X_val: pd.Series, X_test: pd.Series, y_train: pd.Series, y_val: pd.Series, y_test: pd.Series) -> Tuple[Dataset, Dataset, Dataset, torch.Tensor]:
     """"""
     train_texts   =   list(X_train)
     train_labels  =   list(y_train)
@@ -19,6 +20,16 @@ def datasets(X_train: pd.Series, X_val: pd.Series, X_test: pd.Series, y_train: p
     test_labels   =   list(y_test)
     val_texts     =   list(X_val)
     val_labels    =   list(y_val)
+
+    
+    #compute the class weights
+    class_weights = compute_class_weight(
+                                            class_weight = "balanced",
+                                            classes = np.unique(train_labels),
+                                            y = train_labels
+                                        )
+    print("Class Weights:",class_weights)
+    weights= torch.tensor(class_weights,dtype=torch.float)
 
     train_encodings = tokenizer(train_texts, truncation=True, padding=True)
     val_encodings  = tokenizer(val_texts, truncation=True, padding=True)
@@ -39,7 +50,7 @@ def datasets(X_train: pd.Series, X_val: pd.Series, X_test: pd.Series, y_train: p
     val_dataset = CustomDataset(val_encodings, val_labels, X_val_tfidf)
     test_dataset = CustomDataset(test_encodings, test_labels, X_test_tfidf)
 
-    return train_dataset, val_dataset, test_dataset
+    return train_dataset, val_dataset, test_dataset, weights
 
 
 class CustomDataset(Dataset):
