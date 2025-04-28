@@ -87,3 +87,64 @@ zenml stack register stack1 --orchestrator=default --artifact-store=default -e m
    zenml artifact-store register local_artifact_store --type=local --path=/path/to/store
    zenml metadata-store register sqlite_metadata_store --type=sqlite --path=/path/to/sqlite.db
    ```
+
+### run in colab
+
+#### Approach: Split Pipeline with Artifact Store
+
+The best approach is to:
+1. Create a "local pipeline" that runs all steps except training
+2. Use a shared artifact store that both environments can access
+3. Create a "Colab pipeline" with an importer step that accesses artifacts from the shared store
+
+Step 1: Setup Shared Artifact Store
+
+First, you need to configure a stack with an artifact store that both your local environment and Colab can access. Google Drive is a good choice since it's easily accessible from Colab.
+
+```bash
+# Register a Google Drive artifact store for local use
+zenml artifact-store register gdrive_artifact_store --flavor=local --path="G:\Meine Ablage\zenml\artifacts"
+
+# Register a stack that uses this artifact store
+zenml stack register preproc4colab \
+    --artifact-store=gdrive_artifact_store \
+    --orchestrator=default \
+    -e mlflow_experiment_tracker \
+    --set
+```
+
+Step 2: Create Local Pipeline
+
+Step 3: Create Importer Step for Colab
+
+Create a new importer step file `steps/_importer.py`:
+
+Step 4: Create Colab Pipeline
+
+Step 5: Create Colab Notebook
+
+Create a Colab notebook file `train_in_colab.ipynb`:
+
+#### How to Use This Setup
+
+1. **Run locally first**:
+   ```bash
+   python local_pipeline.py
+   ```
+   This will run all preprocessing steps and store the artifacts in your Google Drive. Note the run ID that is printed at the end.
+
+2. **Open the Colab notebook**:
+   - Upload `train_in_colab.ipynb` to Google Colab
+   - Update the `LOCAL_PIPELINE_RUN_ID` with the ID from step 1
+   - Run all cells in the notebook
+
+This approach gives you several advantages:
+- You only need to do the data preprocessing once locally
+- The training step in Colab has access to all necessary artifacts
+- You maintain the ZenML pipeline structure and tracking
+- You can easily switch between environments
+
+Alternative approaches could include:
+1. Using a cloud artifact store (like S3 or GCS) instead of Google Drive
+2. Using a remote metadata store that both environments can access
+3. Splitting the pipeline into two separate pipelines with different triggers
