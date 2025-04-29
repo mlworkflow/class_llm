@@ -1,6 +1,6 @@
 import pandas as pd
 from zenml import step
-from typing import Tuple
+from typing import Tuple, Annotated
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from transformers import AutoTokenizer
@@ -12,7 +12,12 @@ import numpy as np
 tokenizer =  AutoTokenizer.from_pretrained('bert-base-uncased', max_length=1024)
 
 @step
-def datasets(X_train: pd.Series, X_val: pd.Series, X_test: pd.Series, y_train: pd.Series, y_val: pd.Series, y_test: pd.Series) -> Tuple[Dataset, Dataset, Dataset, torch.Tensor]:
+def datasets(X_train: pd.Series, X_val: pd.Series, X_test: pd.Series, y_train: pd.Series, y_val: pd.Series, y_test: pd.Series)  -> Tuple[
+    Annotated[Dataset, "train_dataset"],
+    Annotated[Dataset, "val_dataset"],
+    Annotated[Dataset, "test_dataset"],
+    Annotated[torch.Tensor, "weights"]
+    ]:
     """"""
     train_texts   =   list(X_train)
     train_labels  =   list(y_train)

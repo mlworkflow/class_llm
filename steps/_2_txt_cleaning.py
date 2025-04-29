@@ -2,6 +2,7 @@ import pandas as pd
 from zenml import step
 import re
 import string
+from typing import Annotated
 from pythelpers.ml.text_preprocessing import (
     expand_contractions,
     strip_all_entities,
@@ -19,7 +20,7 @@ from pythelpers.ml.text_preprocessing import (
 
 
 @step
-def txt_cleaning(df: pd.DataFrame) -> pd.DataFrame:
+def txt_cleaning(df: pd.DataFrame) -> Annotated[pd.DataFrame, "df"]:
     """Handles missing values using MissingValueHandler and the specified strategy."""
 
     df['text_clean'] = [clean_ticket(ticket) for ticket in df['body']]

@@ -11,6 +11,7 @@
 or:   
 `docker run -it -d -p 8080:8080 --name zenml zenmldocker/zenml-server `   
 `zenml login http://localhost:8080`
+`zenml login --refresh http://localhost:8080`
 
 ### mlflow integration
 
@@ -74,7 +75,6 @@ zenml stack register stack1 --orchestrator=default --artifact-store=default -e m
    Run the following commands to see the available components:
    - `zenml orchestrator list`
    - `zenml artifact-store list`
-   - `zenml metadata-store list`
    - `zenml experiment-tracker list`
    - `zenml secrets-manager list`
    - `zenml container-registry list`
@@ -104,6 +104,8 @@ First, you need to configure a stack with an artifact store that both your local
 ```bash
 # Register a Google Drive artifact store for local use
 zenml artifact-store register gdrive_artifact_store --flavor=local --path="G:\Meine Ablage\zenml\artifacts"
+
+
 
 # Register a stack that uses this artifact store
 zenml stack register preproc4colab \

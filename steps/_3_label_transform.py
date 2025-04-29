@@ -1,10 +1,15 @@
 import pandas as pd
-from typing import Tuple
+from typing import Tuple, Annotated
 from zenml import step
 
 
 @step
-def label_transform(df: pd.DataFrame) -> Tuple[pd.DataFrame, dict, dict, int]:
+def label_transform(df: pd.DataFrame) -> Tuple[
+    Annotated[pd.DataFrame, "df"],
+    Annotated[dict, "id2label"],
+    Annotated[dict, "label2id"],
+    Annotated[int, "num_labels"]
+]:
     """Ingest data from a ZIP file using the appropriate DataIngestor."""
     # Load and shuffle data
     df['label'] = df['impact'] + df['urgency']

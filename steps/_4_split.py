@@ -1,11 +1,18 @@
 import pandas as pd
 from zenml import step
-from typing import Tuple
+from typing import Tuple, Annotated
 from sklearn.model_selection import train_test_split
 
 
 @step
-def split(df: pd.DataFrame) -> Tuple[pd.Series, pd.Series, pd.Series, pd.Series, pd.Series, pd.Series]:
+def split(df: pd.DataFrame) -> Tuple[
+    Annotated[pd.Series, "X_train"],
+    Annotated[pd.Series, "X_val"],
+    Annotated[pd.Series, "X_test"],
+    Annotated[pd.Series, "y_train"],
+    Annotated[pd.Series, "y_val"],
+    Annotated[pd.Series, "y_test"]
+]:
     """"""
     X = df['text_clean']
     y = df['labels']

@@ -1,6 +1,6 @@
 import pandas as pd
 from zenml import step
-from typing import Tuple
+from typing import Annotated
 from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 import torch
@@ -27,7 +27,7 @@ model = Model(
 tokenizer =  AutoTokenizer.from_pretrained('bert-base-uncased', max_length=1024)
 
 @step(enable_cache=False, experiment_tracker=experiment_tracker.name, model=model)
-def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: int, id2label: dict, label2id: dict, weights: torch.Tensor) -> AutoModelForSequenceClassification:
+def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: int, id2label: dict, label2id: dict, weights: torch.Tensor) -> Annotated[AutoModelForSequenceClassification, "model_bert"]:
     """"""
     mlflow.pytorch.autolog()
     model_bert = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=NUM_LABELS, id2label=id2label, label2id=label2id)
