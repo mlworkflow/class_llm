@@ -15,11 +15,11 @@ from zenml.models import PipelineRunResponse
         name="impact_classifier",
     ),
 )
-def colab_pipeline():
+def colab_pipeline(artifact_path, artifact_store_id):
     """Pipeline that imports artifacts and runs training in Colab."""
     
     # Import artifacts from the local pipeline run
-    train_dataset, val_dataset, NUM_LABELS, id2label, label2id, weights = import_artifacts()
+    train_dataset, val_dataset, NUM_LABELS, id2label, label2id, weights = import_artifacts(artifact_path, artifact_store_id)
     
     # Train the model
     model_trained = train(train_dataset, val_dataset, NUM_LABELS, id2label, label2id, weights)
