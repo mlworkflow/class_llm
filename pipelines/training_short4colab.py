@@ -1,3 +1,7 @@
+from pathlib import Path
+import sys
+# Add the parent directory to the system path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 from steps.importer import import_artifacts
 from steps._6_train import train
 from zenml import Model, pipeline
@@ -21,6 +25,14 @@ def colab_pipeline():
     model_trained = train(train_dataset, val_dataset, NUM_LABELS, id2label, label2id, weights)
     
     return model_trained
+
+
+if __name__ == "__main__":
+    # Running the pipeline
+    run = colab_pipeline()
+    
+    # Get the run ID for reference in Colab
+    print(f"Run ID: {run.id}")
 
 
 
