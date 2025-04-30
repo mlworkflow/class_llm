@@ -33,6 +33,11 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
     model_bert = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=NUM_LABELS, id2label=id2label, label2id=label2id)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model_bert = model_bert.to(device)
+    
+    # *** FIX: Move the weights tensor to the same device as the model ***
+    weights = weights.to(device)
+    print(f"Weights tensor moved to device: {weights.device}")
+
     trainer = WeightedLossTrainer(
         model=model_bert,
         weights=weights,

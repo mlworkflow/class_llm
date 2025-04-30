@@ -11,7 +11,7 @@ import pickle
 logger = get_logger(__name__)
 
 @step
-def import_artifacts(artifact_path, artifact_store_id) -> Tuple[
+def import_artifacts() -> Tuple[
     Annotated[Dataset, "train_dataset"],
     Annotated[Dataset, "val_dataset"],
     Annotated[int, "num_labels"],
@@ -25,6 +25,8 @@ def import_artifacts(artifact_path, artifact_store_id) -> Tuple[
     prefix = client.active_stack.artifact_store.path
     pipe_run_path = os.path.join(prefix, "local4colab_pipe_run.pkl")
     pipe_run = pickle.load(open(pipe_run_path, "rb"))
+    artifact_path  = client.active_stack.artifact_store.path
+    artifact_store_id = client.active_stack.artifact_store.id
 
     # Load the artifacts
     train_dataset = load_on_colab(pipe_run.steps['datasets'].outputs['train_dataset'][0], 'datasets', artifact_path, artifact_store_id)
