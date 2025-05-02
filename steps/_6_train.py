@@ -12,6 +12,7 @@ from zenml import ArtifactConfig, step
 from zenml.client import Client
 from steps._5_datasets import CustomDataset
 import mlflow
+from torch.utils.data import Subset
 
 # Get the active experiment tracker from ZenML
 experiment_tracker = Client().active_stack.experiment_tracker
@@ -38,6 +39,10 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
     weights = weights.to(device)
     print(f"Weights tensor moved to device: {weights.device}")
 
+    # Assuming `eval_dataset` is your evaluation dataset
+    subset_indices = list(range(64))  # Use only the first 64 samples
+    val_dataset = Subset(val_dataset, subset_indices)
+
     trainer = WeightedLossTrainer(
         model=model_bert,
         weights=weights,
@@ -46,7 +51,7 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
         eval_dataset=val_dataset,
         compute_metrics=compute_metrics
     )
-    trainer.train()
+    trainer.train(resume_from_checkpoint=True) # or use path to checkpoint
 
     return model_bert
 
@@ -83,14 +88,18 @@ training_args = TrainingArguments(
     torch_compile=False,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=16,
-    warmup_steps=200,
+    warmup_steps=2, # first n steps of training will use a linearly increasing learning rate from 0 to learning_rate
     weight_decay=0.01,
     logging_strategy='steps',
     logging_dir='./multi-class-logs',
-    logging_steps=500,
+    logging_steps=2,
     eval_strategy="steps",
-    eval_steps=500,
+    eval_steps=4,
+    save_steps=4,  # Save checkpoints every 5 steps, must be round multiple of eval_steps
     save_strategy="steps",
+    save_total_limit=3,  # Optional: Keep only the last 3 checkpoints
+    metric_for_best_model="f1-score",  # Specify the metric to monitor
+    greater_is_better=True,  # Set to True for metrics where higher is better
     load_best_model_at_end=True,
     fp16=True,
     optim="adamw_torch_fused"

@@ -24,6 +24,10 @@ or:
 3. dashboard öffnen
 `mlflow server`
 
+4. mit remote server verbinden
+`mlflow.set_tracking_uri('https://dbc-678b3979-34b1.cloud.databricks.com/browse/folders/workspace?o=300400946232800')`  
+`mlflow.set_experiment("https://dbc-678b3979-34b1.cloud.databricks.com/ml/experiments/3034448658823987")`
+
 ### stack erstellen
 
 To successfully register a stack in ZenML, you need to specify all required stack components in addition to the `experiment_tracker`. These components include:

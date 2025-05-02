@@ -30,8 +30,6 @@ def ml_pipeline():
 
     data3, id2label, label2id, NUM_LABELS = label_transform(data2)
 
-
-
     # Data Splitting Step
     X_train, X_val, X_test, y_train, y_val, y_test = split(data3)
 
