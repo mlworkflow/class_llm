@@ -20,11 +20,12 @@ or:
 
 2.
 `zenml experiment-tracker register mlflow_experiment_tracker --flavor=mlflow`
+`zenml experiment-tracker register mlflow_experiment_tracker2 --flavor=mlflow --tracking_uri=http://172.201.218.136:5000 --tracking_token=dummy`
 
-3. dashboard öffnen
+1. dashboard öffnen
 `mlflow server`
 
-4. mit remote server verbinden
+1. mit remote server verbinden
 `mlflow.set_tracking_uri('https://dbc-678b3979-34b1.cloud.databricks.com/browse/folders/workspace?o=300400946232800')`  
 `mlflow.set_experiment("https://dbc-678b3979-34b1.cloud.databricks.com/ml/experiments/3034448658823987")`
 
@@ -117,6 +118,8 @@ zenml stack register preproc4colab \
     --orchestrator=default \
     -e mlflow_experiment_tracker \
     --set
+
+zenml stack register stack2 --artifact-store=gdrive_artifact_store --orchestrator=default -e mlflow_experiment_tracker2 --set
 ```
 
 Step 2: Create Local Pipeline

@@ -29,7 +29,7 @@ env einrichten
 ```
 conda create -n py311_env python=3.11 -y
 conda activate py311_env
-conda install -c conda-forge mlflow -y
+pip install --upgrade mlflow
 # needed for mlflow to work
 pip install protobuf==3.20.*
 # posgresql (optional)
@@ -44,14 +44,11 @@ mlflow server \
   --default-artifact-root ./mlruns \
   --host 0.0.0.0 \
   --port 5000
-
-# after that
-mlflow server --host 0.0.0.0
 ```
 
 ui öffnen
 ```
-http://<your-vm-ip>:5000
+http://172.201.218.136:5000
 ```
 
 

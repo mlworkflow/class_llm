@@ -34,6 +34,7 @@ def import_artifacts() -> Tuple[
     NUM_LABELS = load_on_colab(pipe_run.steps['label_transform'].outputs['num_labels'][0], 'label_transform', artifact_path, artifact_store_id)
     id2label = load_on_colab(pipe_run.steps['label_transform'].outputs['id2label'][0], 'label_transform', artifact_path, artifact_store_id)
     label2id = load_on_colab(pipe_run.steps['label_transform'].outputs['label2id'][0], 'label_transform', artifact_path, artifact_store_id)
+    
     weights = load_on_colab(pipe_run.steps['datasets'].outputs['weights'][0], 'datasets', artifact_path, artifact_store_id)
 
     return train_dataset, val_dataset, NUM_LABELS, id2label, label2id, weights

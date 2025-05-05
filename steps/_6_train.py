@@ -13,9 +13,14 @@ from zenml.client import Client
 from steps._5_datasets import CustomDataset
 import mlflow
 from torch.utils.data import Subset
+import os
 
 # Get the active experiment tracker from ZenML
-experiment_tracker = Client().active_stack.experiment_tracker
+client = Client()
+prefix = client.active_stack.artifact_store.path
+model_out_path = os.path.join(prefix, "model")
+train_logs_path = os.path.join(prefix, "train_logs")
+experiment_tracker = client.active_stack.experiment_tracker
 from zenml import Model
 
 model = Model(
@@ -30,6 +35,7 @@ tokenizer =  AutoTokenizer.from_pretrained('bert-base-uncased', max_length=1024)
 @step(enable_cache=False, experiment_tracker=experiment_tracker.name, model=model)
 def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: int, id2label: dict, label2id: dict, weights: torch.Tensor) -> Annotated[AutoModelForSequenceClassification, "model_bert"]:
     """"""
+    mlflow.set_tracking_uri("http://172.201.218.136:5000")
     mlflow.pytorch.autolog()
     model_bert = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=NUM_LABELS, id2label=id2label, label2id=label2id)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -40,8 +46,8 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
     print(f"Weights tensor moved to device: {weights.device}")
 
     # Assuming `eval_dataset` is your evaluation dataset
-    subset_indices = list(range(64))  # Use only the first 64 samples
-    val_dataset = Subset(val_dataset, subset_indices)
+    # subset_indices = list(range(64))  # Use only the first 64 samples
+    # val_dataset = Subset(val_dataset, subset_indices)
 
     trainer = WeightedLossTrainer(
         model=model_bert,
@@ -51,7 +57,15 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
         eval_dataset=val_dataset,
         compute_metrics=compute_metrics
     )
-    trainer.train(resume_from_checkpoint=True) # or use path to checkpoint
+
+    # Attempt to resume training from a checkpoint
+    try:
+        trainer.train(resume_from_checkpoint=True)
+    except ValueError as e:
+        # Handle the case where no checkpoint exists
+        print(f"Warning: {e}. Starting training from scratch.")
+        trainer.train()
+
 
     return model_bert
 
@@ -80,7 +94,7 @@ def compute_metrics(pred):
     return {'accuracy': acc, 'f1-score': f1, 'precision': precision, 'recall': recall}
 
 training_args = TrainingArguments(
-    output_dir='./multi-class-logs',
+    output_dir=model_out_path,
     do_train=True,
     do_eval=True,
     num_train_epochs=7,
@@ -88,14 +102,14 @@ training_args = TrainingArguments(
     torch_compile=False,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=16,
-    warmup_steps=2, # first n steps of training will use a linearly increasing learning rate from 0 to learning_rate
+    warmup_steps=100, # first n steps of training will use a linearly increasing learning rate from 0 to learning_rate
     weight_decay=0.01,
     logging_strategy='steps',
-    logging_dir='./multi-class-logs',
-    logging_steps=2,
+    logging_dir=train_logs_path,
+    logging_steps=100,
     eval_strategy="steps",
-    eval_steps=4,
-    save_steps=4,  # Save checkpoints every 5 steps, must be round multiple of eval_steps
+    eval_steps=200,
+    save_steps=200,  # Save checkpoints every 5 steps, must be round multiple of eval_steps
     save_strategy="steps",
     save_total_limit=3,  # Optional: Keep only the last 3 checkpoints
     metric_for_best_model="f1-score",  # Specify the metric to monitor
