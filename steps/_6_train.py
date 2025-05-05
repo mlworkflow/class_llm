@@ -116,6 +116,7 @@ training_args = TrainingArguments(
     greater_is_better=True,  # Set to True for metrics where higher is better
     load_best_model_at_end=True,
     fp16=True,
+    report_to=["mlflow"],
     optim="adamw_torch_fused"
 )
 
