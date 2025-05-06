@@ -3,6 +3,7 @@ from zenml import step
 from typing import Annotated
 from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
+from transformers.models.bert.modeling_bert import BertForSequenceClassification
 import torch
 import logging
 from sklearn.metrics import precision_recall_fscore_support
@@ -33,7 +34,7 @@ model = Model(
 tokenizer =  AutoTokenizer.from_pretrained('bert-base-uncased', max_length=1024)
 
 @step(enable_cache=False, experiment_tracker=experiment_tracker.name, model=model)
-def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: int, id2label: dict, label2id: dict, weights: torch.Tensor) -> Annotated[AutoModelForSequenceClassification, "model_bert"]:
+def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: int, id2label: dict, label2id: dict, weights: torch.Tensor) -> Annotated[BertForSequenceClassification, "model_bert"]:
     """"""
     mlflow.set_tracking_uri("http://172.201.218.136:5000")
     mlflow.pytorch.autolog()

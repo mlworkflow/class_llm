@@ -6,6 +6,8 @@ from steps.importer import import_artifacts
 from steps._6_train import train
 from zenml import Model, pipeline
 from zenml.models import PipelineRunResponse
+from typing import Annotated
+from transformers.models.bert.modeling_bert import BertForSequenceClassification
 
 
 
@@ -15,7 +17,7 @@ from zenml.models import PipelineRunResponse
         name="impact_classifier",
     ),
 )
-def colab_pipeline():
+def colab_pipeline()-> Annotated[BertForSequenceClassification, "model_bert"]:
     """Pipeline that imports artifacts and runs training in Colab."""
     
     # Import artifacts from the local pipeline run
