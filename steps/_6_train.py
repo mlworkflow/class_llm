@@ -15,6 +15,7 @@ from steps._5_datasets import CustomDataset
 import mlflow
 from torch.utils.data import Subset
 import os
+from accelerate import Accelerator # Import the Accelerator
 
 # Get the active experiment tracker from ZenML
 client = Client()
@@ -67,8 +68,11 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
         print(f"Warning: {e}. Starting training from scratch.")
         trainer.train()
 
+        # Am Ende des Trainings:
+    accelerator = Accelerator() # Stellen Sie sicher, dass Sie eine Instanz haben
+    unwrapped_model = accelerator.unwrap_model(model_bert)
 
-    return model_bert
+    return unwrapped_model
 
 
 class WeightedLossTrainer(Trainer):
