@@ -2,7 +2,8 @@
 
 1.
 `zenml init`
-
+or
+`zenml login http://172.201.218.136:8080 `
 2.
 `zenml project register class_llm --set`
 

@@ -68,9 +68,14 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
         print(f"Warning: {e}. Starting training from scratch.")
         trainer.train()
 
-        # Am Ende des Trainings:
-    accelerator = Accelerator() # Stellen Sie sicher, dass Sie eine Instanz haben
-    unwrapped_model = accelerator.unwrap_model(model_bert)
+    # Correctly unwrap the model from the trainer instance
+    # trainer.model is the model that has been trained and potentially had the best checkpoint loaded.
+    # This is the model that is still "prepared" by the Accelerator.
+    
+    # You already have 'from accelerate import Accelerator'
+    # Creating a new Accelerator instance for unwrapping is standard practice.
+    accelerator_for_unwrapping = Accelerator()
+    unwrapped_model = accelerator_for_unwrapping.unwrap_model(trainer.model) # <--- Key change: use trainer.model
 
     return unwrapped_model
 
