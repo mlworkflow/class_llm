@@ -68,14 +68,22 @@ def train(train_dataset: CustomDataset, val_dataset: CustomDataset, NUM_LABELS: 
         print(f"Warning: {e}. Starting training from scratch.")
         trainer.train()
 
-    # Correctly unwrap the model from the trainer instance
-    # trainer.model is the model that has been trained and potentially had the best checkpoint loaded.
-    # This is the model that is still "prepared" by the Accelerator.
+    # --- CRITICAL CHANGE HERE ---
+    # Access the Trainer's internal accelerator
+    trainer_accelerator = trainer.accelerator
     
-    # You already have 'from accelerate import Accelerator'
-    # Creating a new Accelerator instance for unwrapping is standard practice.
-    accelerator_for_unwrapping = Accelerator()
-    unwrapped_model = accelerator_for_unwrapping.unwrap_model(trainer.model) # <--- Key change: use trainer.model
+    # Unwrap the model, ensuring FP32/AMP wrappers are removed
+    # trainer.model is the model instance managed by the Trainer, potentially loaded from the best checkpoint
+    print(f"Type of trainer.model before unwrap: {type(trainer.model)}")
+    unwrapped_model = trainer_accelerator.unwrap_model(trainer.model, keep_fp32_wrapper=False)
+    print(f"Type of model after unwrap: {type(unwrapped_model)}")
+
+    # As an extra safety check, if the unwrapped_model still seems to be a wrapper,
+    # try a more generic unwrap if it has a 'module' attribute (common for DDP/FSDP)
+    # This is usually handled by accelerator.unwrap_model, but as a fallback:
+    if hasattr(unwrapped_model, "module") and isinstance(unwrapped_model.module, BertForSequenceClassification):
+        print("Performing an additional unwrap via .module")
+        unwrapped_model = unwrapped_model.module
 
     return unwrapped_model
 
