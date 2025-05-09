@@ -30,6 +30,12 @@ or:
 `mlflow.set_tracking_uri('https://dbc-678b3979-34b1.cloud.databricks.com/browse/folders/workspace?o=300400946232800')`  
 `mlflow.set_experiment("https://dbc-678b3979-34b1.cloud.databricks.com/ml/experiments/3034448658823987")`
 
+### azure integration
+`zenml integration install azure -y`
+`zenml artifact-store register az_store -f azure --path=az://container-name`
+- umgebungsvariable setzen https://docs.zenml.io/stacks/stack-components/artifact-stores/azure
+- AZURE_STORAGE_CONNECTION_STRING 
+
 ### stack erstellen
 
 To successfully register a stack in ZenML, you need to specify all required stack components in addition to the `experiment_tracker`. These components include:
@@ -121,6 +127,8 @@ zenml stack register preproc4colab \
     --set
 
 zenml stack register stack2 --artifact-store=gdrive_artifact_store --orchestrator=default -e mlflow_experiment_tracker2 --set
+
+zenml stack register stack4 --artifact-store=az_store --orchestrator=default -e mlflow_experiment_tracker2 --set
 ```
 
 Step 2: Create Local Pipeline

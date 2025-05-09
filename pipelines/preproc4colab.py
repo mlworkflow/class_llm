@@ -47,8 +47,8 @@ if __name__ == "__main__":
     
     # Get the run ID for reference in Colab
     print(f"Run ID: {run.id}")
-    pipe_run = client.get_pipeline_run(run.id)
+    # pipe_run = client.get_pipeline_run(run.id)
     # Path to an existing folder in your artifact store
-    prefix = client.active_stack.artifact_store.path
-    pipe_run_path = os.path.join(prefix, "local4colab_pipe_run.pkl")
-    pickle.dump(pipe_run, open(pipe_run_path, "wb"))
+    # prefix = client.active_stack.artifact_store.path
+    # pipe_run_path = os.path.join(prefix, "local4colab_pipe_run.pkl")
+    # pickle.dump(pipe_run, open(pipe_run_path, "wb"))

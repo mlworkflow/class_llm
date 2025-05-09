@@ -38,6 +38,7 @@ def import_artifacts() -> Tuple[
     weights = load_on_colab(pipe_run.steps['datasets'].outputs['weights'][0], 'datasets', artifact_path, artifact_store_id)
 
     return train_dataset, val_dataset, NUM_LABELS, id2label, label2id, weights
+    
 
 
 def load_on_colab(o: ArtifactVersionResponse, step_name, artifact_path, artifact_store_id):
